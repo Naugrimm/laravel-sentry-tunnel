@@ -11,6 +11,7 @@ class Provider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(__DIR__."/config/sentry-tunnel.php", "sentry-tunnel");
+        $this->app->alias(Services\MiddlewareList::class, Contracts\MiddlewareList::class);
     }
 
     public function boot()

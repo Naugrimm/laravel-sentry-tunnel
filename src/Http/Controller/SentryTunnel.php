@@ -7,9 +7,15 @@ namespace Naugrim\LaravelSentryTunnel\Http\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Http;
+use Naugrim\LaravelSentryTunnel\Contracts\MiddlewareList;
 
 class SentryTunnel extends Controller
 {
+    public function __construct(MiddlewareList $middlewareList)
+    {
+        $this->middleware($middlewareList->getMiddlewareList());
+    }
+
     private function allowedHosts(): array
     {
         $allowedHosts = trim(config("sentry-tunnel.allowed-hosts") ?? "");
