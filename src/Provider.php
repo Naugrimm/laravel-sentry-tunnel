@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Naugrim\LaravelSentryTunnel;
 
 use Illuminate\Support\ServiceProvider;
@@ -15,7 +17,7 @@ class Provider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__."/routes/web.php");
         $this->publishes([
-            __DIR__."/config/sentry-tunnel.php" => config_path("sentry-tunnel.php")
+            __DIR__."/config/sentry-tunnel.php" => config_path("sentry-tunnel.php"),
         ]);
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Naugrim\LaravelSentryTunnel\Http\Controller;
 
 use Illuminate\Http\Request;
@@ -8,25 +10,28 @@ use Illuminate\Support\Facades\Http;
 
 class SentryTunnel extends Controller
 {
-    private function allowedHosts() : array
+    private function allowedHosts(): array
     {
-        $allowedHosts = trim(config("sentry-tunnel.allowed-hosts"));
+        $allowedHosts = trim(config("sentry-tunnel.allowed-hosts") ?? "");
         if (empty($allowedHosts)) {
             return [];
         }
+
         return explode(",", $allowedHosts);
     }
 
-    private function allowedProjects() : array
+    private function allowedProjects(): array
     {
-        $allowedProjects = trim(config("sentry-tunnel.allowed-projects"));
+        $allowedProjects = trim(config("sentry-tunnel.allowed-projects") ?? "");
         if (empty($allowedProjects)) {
             return [];
         }
+
         return explode(",", $allowedProjects);
     }
 
-    public function tunnel(Request $request) {
+    public function tunnel(Request $request)
+    {
         $envelope = $request->getContent();
         $pieces = explode("\n", $envelope, 2);
         $header = json_decode($pieces[0], true);
@@ -40,7 +45,7 @@ class SentryTunnel extends Controller
             return response("no user", 401);
         }
 
-        if (! in_array($dsn["host"], $this->allowedHosts())) {
+        if (! in_array($dsn["host"], $this->allowedHosts(), true)) {
             return response('invalid host', 401);
         }
 
@@ -49,11 +54,12 @@ class SentryTunnel extends Controller
         }
 
         $allowedProjects = $this->allowedProjects();
-        if (! empty($allowedProjects) && ! in_array($projectId, $allowedProjects)) {
+        if (! empty($allowedProjects) && ! in_array($projectId, $allowedProjects, true)) {
             return response('invalid project', 401);
         }
 
         return Http::withBody($envelope, "application/x-sentry-envelope")
-            ->post("https://".$dsn["host"]."/api/$projectId/envelope/?sentry_key=".$dsn["user"]);
+            ->post("https://".$dsn["host"]."/api/{$projectId}/envelope/?sentry_key=".$dsn["user"])
+        ;
     }
 }
