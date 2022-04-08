@@ -33,7 +33,7 @@ class SentryTunnel extends Controller
             return [];
         }
 
-        return explode(",", $allowedProjects);
+        return array_map('intval', explode(",", $allowedProjects));
     }
 
     public function tunnel(Request $request)
