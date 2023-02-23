@@ -4,5 +4,8 @@ namespace Naugrim\LaravelSentryTunnel\Contracts;
 
 interface MiddlewareList
 {
-    public function getMiddlewareList() : array;
+    /**
+     * @return string[]
+     */
+    public function getMiddlewareList(): array;
 }

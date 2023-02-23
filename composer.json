@@ -21,7 +21,17 @@
         "illuminate/http": "^8.0|^9.0|^10.0"
     },
     "require-dev": {
-        "symplify/easy-coding-standard": "^10.1"
+        "symplify/easy-coding-standard": "^10.1",
+        "phpstan/phpstan": "^1.10",
+        "phpstan/phpstan-deprecation-rules": "^1.1",
+        "nunomaduro/larastan": "^2.4",
+        "orchestra/testbench": "^8.0"
+    },
+    "scripts": {
+        "phpstan": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php -dmemory_limit=1G ./vendor/bin/phpstan analyse"
+        ]
     },
     "extra": {
         "laravel": {

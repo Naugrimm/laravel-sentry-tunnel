@@ -1,0 +1,13 @@
+includes:
+  - ./vendor/phpstan/phpstan-deprecation-rules/rules.neon
+  - ./vendor/nunomaduro/larastan/extension.neon
+
+parameters:
+  parallel:
+    maximumNumberOfProcesses: 2
+  tmpDir: .phpstan
+  paths:
+    - src/
+
+  editorUrl: 'phpstorm://open?file=%%file%%&line=%%line%%'
+  level: max
