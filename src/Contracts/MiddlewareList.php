@@ -7,5 +7,5 @@ interface MiddlewareList
     /**
      * @return string[]
      */
-    public function getMiddlewareList() : array;
+    public function getMiddlewareList(): array;
 }

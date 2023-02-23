@@ -23,12 +23,12 @@ class SentryTunnel extends Controller
     private function allowedHosts(): array
     {
         /** @phpstan-ignore-next-line */
-        $allowedHosts = trim(config("sentry-tunnel.allowed-hosts") ?? "");
+        $allowedHosts = trim(config('sentry-tunnel.allowed-hosts') ?? '');
         if (empty($allowedHosts)) {
             return [];
         }
 
-        return explode(",", $allowedHosts);
+        return explode(',', $allowedHosts);
     }
 
     /**
@@ -37,34 +37,34 @@ class SentryTunnel extends Controller
     private function allowedProjects(): array
     {
         /** @phpstan-ignore-next-line  */
-        $allowedProjects = trim(config("sentry-tunnel.allowed-projects") ?? "");
+        $allowedProjects = trim(config('sentry-tunnel.allowed-projects') ?? '');
         if (empty($allowedProjects)) {
             return [];
         }
 
-        return array_map('intval', explode(",", $allowedProjects));
+        return array_map('intval', explode(',', $allowedProjects));
     }
 
-    public function tunnel(Request $request) : Response | \Illuminate\Http\Client\Response
+    public function tunnel(Request $request): Response | \Illuminate\Http\Client\Response
     {
         $envelope = $request->getContent();
         $pieces = explode("\n", $envelope, 2);
         $header = json_decode($pieces[0], true);
-        if (! is_array($header) || ! isset($header["dsn"]) || !is_string($header["dsn"])) {
+        if (! is_array($header) || ! isset($header['dsn']) || ! is_string($header['dsn'])) {
             return response('no dsn', 422);
         }
 
-        $dsn = parse_url($header["dsn"]);
+        $dsn = parse_url($header['dsn']);
 
-        if (empty($dsn["user"])) {
-            return response("no user", 401);
+        if (empty($dsn['user'])) {
+            return response('no user', 401);
         }
 
-        if (empty($dsn["host"]) || ! in_array($dsn["host"], $this->allowedHosts(), true)) {
+        if (empty($dsn['host']) || ! in_array($dsn['host'], $this->allowedHosts(), true)) {
             return response('invalid host', 401);
         }
 
-        if (! $projectId = intval(trim($dsn["path"] ?? '', "/"))) {
+        if (! $projectId = intval(trim($dsn['path'] ?? '', '/'))) {
             return response('no project', 422);
         }
 
@@ -73,8 +73,8 @@ class SentryTunnel extends Controller
             return response('invalid project', 401);
         }
 
-        return Http::withBody($envelope, "application/x-sentry-envelope")
-            ->post("https://".$dsn["host"]."/api/{$projectId}/envelope/?sentry_key=".$dsn["user"])
+        return Http::withBody($envelope, 'application/x-sentry-envelope')
+            ->post('https://' . $dsn['host'] . "/api/{$projectId}/envelope/?sentry_key=" . $dsn['user'])
         ;
     }
 }
