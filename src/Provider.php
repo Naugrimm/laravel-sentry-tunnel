@@ -14,7 +14,7 @@ class Provider extends ServiceProvider
         $this->app->alias(Services\MiddlewareList::class, Contracts\MiddlewareList::class);
     }
 
-    public function boot()
+    public function boot() : void
     {
         $this->loadRoutesFrom(__DIR__."/routes/web.php");
         $this->publishes([
