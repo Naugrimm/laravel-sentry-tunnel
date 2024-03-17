@@ -5,10 +5,8 @@ This package provides a URL for use with the [`tunnel`-option](https://docs.sent
 ## Installation
 
 ```shell
-composer require naugrim/laravel-sentry-tunnel
+composer require asbiin/laravel-sentry-tunnel
 ```
-
-The package uses Laravel's [auto-discovery](https://laravel.com/docs/9.x/packages#package-discovery).
 
 ## Configuration
 
@@ -26,7 +24,7 @@ SENTRY_TUNNEL_ALLOWED_HOSTS=my.host.com
 
 **NOTE**: This essentially creates a reverse proxy to the `SENTRY_TUNNEL_ALLOWED_HOSTS`. As the Sentry DSN is not kept secret, this enables everyone to send messages to these hosts that seem to originate from your server.
 
-Therefore, the default middleware list for the tunnel URL includes `web` and `auth` (so that only authenticated users can use the endpoint). 
+Therefore, the default middleware list for the tunnel URL includes `web` and `auth` (so that only authenticated users can use the endpoint).
 
 As you currently cannot pass a dynamic `X-XSRF-TOKEN` header in Sentry's `transportOptions` you either have to implement your own transport or place the tunnel URL in the exclude-list in the `VerifyCsrfToken` middleware.
 
@@ -47,7 +45,7 @@ class MyMiddlewareList extends MiddlewareList
             [
                 "throttle",
             ]
-        );       
+        );
     }
 }
 ```

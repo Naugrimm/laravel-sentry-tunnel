@@ -22,7 +22,6 @@ class SentryTunnel extends Controller
      */
     private function allowedHosts(): array
     {
-        /** @phpstan-ignore-next-line */
         $allowedHosts = trim(config('sentry-tunnel.allowed-hosts') ?? '');
         if (empty($allowedHosts)) {
             return [];
@@ -36,7 +35,6 @@ class SentryTunnel extends Controller
      */
     private function allowedProjects(): array
     {
-        /** @phpstan-ignore-next-line  */
         $allowedProjects = trim(config('sentry-tunnel.allowed-projects') ?? '');
         if (empty($allowedProjects)) {
             return [];

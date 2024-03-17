@@ -1,0 +1,48 @@
+name: Unit tests
+
+on:
+  push:
+    branches:
+      - main
+      - next
+      - next-major
+      - beta
+      - alpha
+  pull_request:
+    types: [opened, synchronize, reopened]
+  release:
+    types:
+      - created
+
+concurrency:
+  group: Tests ${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  checks: write
+  id-token: write
+
+jobs:
+  tests:
+    name: Run tests
+    uses: monicahq/workflows/.github/workflows/library.yml@v2
+    with:
+      php-versions: "['8.1', '8.2', '8.3']"
+      laravel-versions: "['^10.0']"
+      default-php-version: '8.2'
+      default-laravel-version: '^10.0'
+      matrix-exclude: "[]"
+      project: asbiin_laravel-sentry-tunnel
+      organization: asbiin-github
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  release:
+    name: Release
+    uses: monicahq/workflows/.github/workflows/release.yml@v2
+    secrets:
+      GH_TOKEN_RELEASE: ${{ secrets.GH_TOKEN_RELEASE }}
+    needs: tests
