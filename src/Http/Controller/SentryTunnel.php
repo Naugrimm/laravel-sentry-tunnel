@@ -1,78 +1,78 @@
 <?php
 
-declare(strict_types=1);
+namespace SentryTunnel\Http\Controller;
 
-namespace Naugrim\LaravelSentryTunnel\Http\Controller;
-
+use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
-use Naugrim\LaravelSentryTunnel\Contracts\MiddlewareList;
+
+use function Safe\json_decode;
+use function Safe\parse_url;
 
 class SentryTunnel extends Controller
 {
-    public function __construct(MiddlewareList $middlewareList)
-    {
-        $this->middleware($middlewareList->getMiddlewareList());
-    }
-
     /**
-     * @return string[]
+     * Tunnel the request to Sentry.
      */
-    private function allowedHosts(): array
-    {
-        $allowedHosts = trim(config('sentry-tunnel.allowed-hosts') ?? '');
-        if (empty($allowedHosts)) {
-            return [];
-        }
-
-        return explode(',', $allowedHosts);
-    }
-
-    /**
-     * @return int[]
-     */
-    private function allowedProjects(): array
-    {
-        $allowedProjects = trim(config('sentry-tunnel.allowed-projects') ?? '');
-        if (empty($allowedProjects)) {
-            return [];
-        }
-
-        return array_map('intval', explode(',', $allowedProjects));
-    }
-
-    public function tunnel(Request $request): Response | \Illuminate\Http\Client\Response
+    public function tunnel(Request $request): Response
     {
         $envelope = $request->getContent();
         $pieces = explode("\n", $envelope, 2);
-        $header = json_decode($pieces[0], true);
-        if (! is_array($header) || ! isset($header['dsn']) || ! is_string($header['dsn'])) {
-            return response('no dsn', 422);
-        }
+        $header = json_decode($pieces[0], true, flags: JSON_THROW_ON_ERROR);
 
-        $dsn = parse_url($header['dsn']);
+        [$user, $host, $projectId] = $this->parseDsn($header);
 
-        if (empty($dsn['user'])) {
-            return response('no user', 401);
-        }
-
-        if (empty($dsn['host']) || ! in_array($dsn['host'], $this->allowedHosts(), true)) {
-            return response('invalid host', 401);
-        }
-
-        if (! $projectId = intval(trim($dsn['path'] ?? '', '/'))) {
-            return response('no project', 422);
-        }
-
-        $allowedProjects = $this->allowedProjects();
-        if (! empty($allowedProjects) && ! in_array($projectId, $allowedProjects, true)) {
-            return response('invalid project', 401);
-        }
+        $this->checkProjectId($projectId);
 
         return Http::withBody($envelope, 'application/x-sentry-envelope')
-            ->post('https://' . $dsn['host'] . "/api/{$projectId}/envelope/?sentry_key=" . $dsn['user'])
-        ;
+            ->post("https://$host/api/$projectId/envelope/?sentry_key=$user")
+            ->throw();
+    }
+
+    /**
+     * parse the dsn will all controls.
+     */
+    private function parseDsn(mixed $header): array
+    {
+        abort_if(($dsn = data_get($header, 'dsn')) === null, 422, 'no dsn');
+
+        abort_if(($user = parse_url($dsn, PHP_URL_USER)) === null, 401, 'no user');
+        abort_if(($host = parse_url($dsn, PHP_URL_HOST)) === null, 401, 'no host');
+        abort_if(! in_array($host, $this->allowedHosts(), true), 401, 'invalid host');
+
+        $path = trim(parse_url($dsn, PHP_URL_PATH), '/');
+        abort_if(($projectId = intval($path)) === 0, 422, 'no project');
+
+        return [$user, $host, $projectId];
+    }
+
+    /**
+     * Get the allowed hosts.
+     */
+    private function allowedHosts(): array
+    {
+        return array_filter(Arr::flatten([config('sentry-tunnel.allowed-hosts', [])]));
+    }
+
+    /**
+     * Get the allowed projects.
+     */
+    private function allowedProjects(): array
+    {
+        $projects = array_filter(Arr::flatten([config('sentry-tunnel.allowed-projects', [])]));
+
+        return array_map('intval', $projects);
+    }
+
+    /**
+     * Check the projectId.
+     */
+    private function checkProjectId(int $projectId): void
+    {
+        $allowedProjects = $this->allowedProjects();
+
+        abort_if(count($allowedProjects) > 0 && ! in_array($projectId, $allowedProjects, true), 401, 'invalid project');
     }
 }

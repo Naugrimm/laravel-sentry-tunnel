@@ -21,22 +21,25 @@
     ],
     "require": {
         "php": "^8.1",
-        "illuminate/support": "^10.0 || ^11.0",
+        "illuminate/http": "^10.0 || ^11.0",
         "illuminate/routing": "^10.0 || ^11.0",
-        "illuminate/http": "^10.0 || ^11.0"
+        "illuminate/support": "^10.0 || ^11.0",
+        "thecodingmachine/safe": "^2.5"
     },
     "require-dev": {
+        "guzzlehttp/guzzle": "^7.8",
         "larastan/larastan": "^2.8",
-        "symplify/easy-coding-standard": "^10.1",
-        "phpstan/phpstan-deprecation-rules": "^1.1",
+        "laravel/pint": "^1.14",
         "orchestra/testbench": "^8.0 || ^9.0",
+        "phpstan/phpstan-deprecation-rules": "^1.1",
+        "phpstan/phpstan-strict-rules": "^1.5",
         "phpunit/phpunit": "^10.1 || ^11.0",
         "psalm/plugin-laravel": "^2.0",
-        "phpstan/phpstan-strict-rules": "^1.5"
+        "thecodingmachine/phpstan-safe-rule": "^1.2"
     },
     "autoload": {
         "psr-4": {
-            "Naugrim\\LaravelSentryTunnel\\": "src/"
+            "SentryTunnel\\": "src/"
         }
     },
     "autoload-dev": {
@@ -47,7 +50,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Naugrim\\LaravelSentryTunnel\\Provider"
+                "SentryTunnel\\Provider"
             ]
         }
     },

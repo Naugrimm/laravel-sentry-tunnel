@@ -28,14 +28,14 @@ Therefore, the default middleware list for the tunnel URL includes `web` and `au
 
 As you currently cannot pass a dynamic `X-XSRF-TOKEN` header in Sentry's `transportOptions` you either have to implement your own transport or place the tunnel URL in the exclude-list in the `VerifyCsrfToken` middleware.
 
-If you want to change this behavior, provide a custom implementation of `\Naugrim\LaravelSentryTunnel\Contracts\MiddlewareList` via the container:
+If you want to change this behavior, provide a custom implementation of `\SentryTunnel\Contracts\MiddlewareList` via the container:
 
 ```php
 // app/Services/MyMiddlewareList.php
 
 namespace App\Services;
 
-use Naugrim\LaravelSentryTunnel\Services\MiddlewareList;
+use SentryTunnel\Services\MiddlewareList;
 
 class MyMiddlewareList extends MiddlewareList
 {
@@ -56,7 +56,7 @@ Then add it to the container in your `AppServiceProvider`:
 // app/Providers/AppServiceProvider.php
 
 use Illuminate\Support\ServiceProvider;
-use Naugrim\LaravelSentryTunnel\Contracts\MiddlewareList;
+use SentryTunnel\Contracts\MiddlewareList;
 use App\Services\MyMiddlewareList;
 
 class AppServiceProvider extends ServiceProvider

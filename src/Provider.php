@@ -1,24 +1,62 @@
 <?php
 
-declare(strict_types=1);
+namespace SentryTunnel;
 
-namespace Naugrim\LaravelSentryTunnel;
-
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class Provider extends ServiceProvider
 {
-    public function register()
-    {
-        $this->mergeConfigFrom(__DIR__ . '/config/sentry-tunnel.php', 'sentry-tunnel');
-        $this->app->alias(Services\MiddlewareList::class, Contracts\MiddlewareList::class);
-    }
-
+    /**
+     * Bootstrap any package services.
+     */
     public function boot(): void
     {
-        $this->loadRoutesFrom(__DIR__ . '/routes/web.php');
-        $this->publishes([
-            __DIR__ . '/config/sentry-tunnel.php' => config_path('sentry-tunnel.php'),
-        ]);
+        $this->registerRoutes();
+        $this->registerPublishing();
+    }
+
+    /**
+     * Register the package routes.
+     */
+    private function registerRoutes(): void
+    {
+        Route::group($this->routeConfiguration(), function (): void {
+            $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
+        });
+    }
+
+    /**
+     * Get the route group configuration array.
+     */
+    private function routeConfiguration(): array
+    {
+        return [
+            'middleware' => config('sentry-tunnel.middleware', []),
+            'domain' => config('sentry-tunnel.domain', null),
+            'prefix' => config('sentry-tunnel.tunnel-url'),
+        ];
+    }
+
+    /**
+     * Register the package's publishable resources.
+     */
+    private function registerPublishing(): void
+    {
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                __DIR__.'/../config/sentry-tunnel.php' => config_path('sentry-tunnel.php'),
+            ], 'sentry-tunnel-config');
+        }
+    }
+
+    /**
+     * Register any package services.
+     */
+    public function register(): void
+    {
+        $this->mergeConfigFrom(
+            __DIR__.'/../config/sentry-tunnel.php', 'sentry-tunnel'
+        );
     }
 }
