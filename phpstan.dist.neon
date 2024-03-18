@@ -1,6 +1,6 @@
 includes:
   - ./vendor/phpstan/phpstan-deprecation-rules/rules.neon
-  - ./vendor/nunomaduro/larastan/extension.neon
+  - ./vendor/larastan/larastan/extension.neon
 
 parameters:
   parallel:
