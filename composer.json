@@ -21,11 +21,11 @@
         "illuminate/http": "^8.0|^9.0|^10.0|^11.0|^12.0"
     },
     "require-dev": {
-        "larastan/larastan": "^2.4",
+        "larastan/larastan": "^3",
         "symplify/easy-coding-standard": "^10.1",
-        "phpstan/phpstan": "^1.10",
-        "phpstan/phpstan-deprecation-rules": "^1.1",
-        "orchestra/testbench": "^8.0|^9.0"
+        "phpstan/phpstan": "^2",
+        "phpstan/phpstan-deprecation-rules": "^2",
+        "orchestra/testbench": "^11"
     },
     "scripts": {
         "phpstan": [
